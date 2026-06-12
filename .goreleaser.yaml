@@ -1,0 +1,81 @@
+# GoReleaser config `git tag v0.1.0 && git push --tags` builds and
+# publishes everything below via .github/workflows/release.yml.
+# Test locally with: goreleaser release --snapshot --clean
+version: 2
+
+project_name: cmd-ninja
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: ninja
+    binary: ninja
+    main: .
+    env:
+      - CGO_ENABLED=0
+    goos: [darwin, linux]
+    goarch: [amd64, arm64]
+    # Windows deliberately omitted: the prompt-placement widget needs a
+    # PSReadLine hook that doesn't exist yet. Add windows/amd64 here
+    # once `ninja init powershell` is implemented.
+    ldflags:
+      - -s -w -X main.version={{.Version}}
+
+archives:
+  - ids: [ninja]
+    formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - README.md
+      - config.yaml
+      - LICENSE
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude: ["^docs:", "^test:", "^ci:"]
+
+# Homebrew tap: needs a public llm-books/homebrew-tap repo and a
+# HOMEBREW_TAP_TOKEN secret (a PAT with write access to that repo).
+homebrew_casks:
+  - name: cmd-ninja
+    binaries: [ninja]
+    repository:
+      owner: llm-books
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: https://github.com/llm-books/cmd-ninja
+    description: "Type what you need your cmd to do, press Ctrl-G, get the full command. Safe commands land on your prompt, dangerous ones don't."
+    # note: the binary name collides with the ninja build system; brew
+    # formula conflicts are no longer declarable from casks, so the
+    # caveats text has to carry the warning.
+    caveats: |
+      This installs a `ninja` binary, which clashes with the Ninja build
+      system if you have it installed.
+
+      Add the shell hook to your rc file:
+        eval "$(ninja init zsh)"     # or bash/fish
+      and export an API key, e.g.:
+        export ANTHROPIC_API_KEY=...   # or GEMINI/OPENAI/MISTRAL_API_KEY
+    # the binaries are not signed/notarized; strip the quarantine bit
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ninja"]
+          end
+
+# deb/rpm/apk packages, attached to the GitHub release.
+nfpms:
+  - package_name: cmd-ninja
+    homepage: https://github.com/llm-books/cmd-ninja
+    maintainer: "Omer Haderi <info@llm-books.com>"
+    description: "Type what you need your cmd to do, press Ctrl-G, get the full command. Safe commands land on your prompt, dangerous ones don't."
+    license: MIT
+    formats: [deb, rpm, apk]
+    bindir: /usr/bin

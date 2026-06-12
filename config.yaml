@@ -1,0 +1,20 @@
+# Cmd Ninja example configuration.
+# Copy to ~/.config/cmd-ninja/config.yaml (or point $NINJA_CONFIG at it).
+
+# Pick one provider. Leave model/api_key_env out to get that
+# provider's defaults:
+#   anthropic: claude-haiku-4-5      / ANTHROPIC_API_KEY
+#   gemini:    gemini-2.5-flash      / GEMINI_API_KEY
+#   openai:    gpt-5-mini            / OPENAI_API_KEY
+#   mistral:   mistral-small-latest  / MISTRAL_API_KEY
+# The key is always read from the environment, never stored here.
+provider: anthropic               # anthropic | gemini | openai | mistral | stub
+#model: claude-haiku-4-5
+#api_key_env: ANTHROPIC_API_KEY
+hotkey: ctrl-g
+teach: compact                    # off | compact | full
+
+safety:
+  autofill: [read_only, modifies, network]   # tiers allowed onto the prompt
+  block: [mkfs, "dd of=/dev/*"]              # user-extensible denylist
+  paranoid: false                            # if true, only read_only autofills

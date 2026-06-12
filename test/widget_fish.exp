@@ -1,0 +1,46 @@
+#!/usr/bin/expect -f
+# Same placement proof as widget_zsh.exp, for the fish hook.
+
+set timeout 10
+set ninja [file normalize [file join [file dirname [info script]] .. ninja]]
+set env(NINJA_BIN) $ninja
+
+spawn fish --no-config
+expect -re {> ?$}
+
+send -- {"$NINJA_BIN" init fish | source}
+send -- "\r"
+expect -re {> ?$}
+
+# --- read-only request must be FILLed ---
+send -- "find files over 100 megabytes"
+send -- "\007"
+expect {
+    -re {RISK:.*read.only} {}
+    timeout { puts "\nFAIL: INFO block never appeared"; exit 1 }
+}
+expect {
+    -re {find \. -type f -size \+100M} { puts "\nPASS: command landed on the fish prompt" }
+    timeout { puts "\nFAIL: command was not placed"; exit 1 }
+}
+send -- "\025"
+
+# --- destructive request must NOT be FILLed ---
+send -- "delete all the files in my-folder"
+send -- "\007"
+expect {
+    -re {copy or type it} {}
+    timeout { puts "\nFAIL: destructive CMD line never appeared"; exit 1 }
+}
+# A computed sentinel: the result string never appears in the typed
+# input or fish's title escapes, so only real command output matches.
+# If the buffer still held text, the combined line would not execute.
+send -- "echo (math 41999+3)\r"
+expect {
+    -re {42002} { puts "\nPASS: destructive command was withheld" }
+    timeout { puts "\nFAIL: prompt buffer was not empty"; exit 1 }
+}
+
+send -- "exit\r"
+expect eof
+puts "\nALL FISH WIDGET CHECKS PASSED"

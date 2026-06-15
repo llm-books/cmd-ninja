@@ -6,6 +6,8 @@ if it's safe, drops the real command **onto your prompt line**, ready for
 Enter. If it's destructive, it shows the command but makes you type it
 yourself. Nothing ever runs without you pressing **Enter**.
 
+![Cmd Ninja in action — biggest files, free space, mkdir, open ports](assets/01-everyday.gif)
+
 ```
 $ find every file over 100MB in this folder and below     ⌨  Ctrl-G
 
@@ -29,6 +31,14 @@ $ delete all the files in my-folder                       ⌨  Ctrl-G
   CMD (copy or type it):  rm -rf my-folder
 $ █                                   ← prompt left empty on purpose
 ```
+
+## See it in action
+
+| Docker | Kubernetes |
+|---|---|
+| ![ps, logs, system prune (destructive)](assets/02-docker.gif) | ![get pods, scale, delete pods (destructive)](assets/03-kubernetes.gif) |
+| **Git** | **Safety engine** |
+| ![log, soft reset, reset --hard (destructive)](assets/04-git.gif) | ![find -delete, rm -rf, mkfs / rm -rf ~ (blocked)](assets/05-safety.gif) |
 
 ## Requirements
 

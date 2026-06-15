@@ -32,8 +32,8 @@ type SafetyConfig struct {
 // fills in its own defaults (anthropic: claude-haiku-4-5 /
 // ANTHROPIC_API_KEY, gemini: gemini-2.5-flash / GEMINI_API_KEY,
 // openai: gpt-5-mini / OPENAI_API_KEY, mistral: mistral-small-latest /
-// MISTRAL_API_KEY), so switching provider does not drag another
-// provider's model along.
+// MISTRAL_API_KEY, groq: llama-3.1-8b-instant / GROQ_API_KEY), so
+// switching provider does not drag another provider's model along.
 func Default() Config {
 	return Config{
 		Provider: "anthropic",

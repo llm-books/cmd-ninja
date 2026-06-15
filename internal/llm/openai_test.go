@@ -72,6 +72,23 @@ func TestMistralProvider(t *testing.T) {
 	}
 }
 
+func TestGroqProvider(t *testing.T) {
+	srv := compatServer(t, "llama-3.1-8b-instant")
+	defer srv.Close()
+
+	t.Setenv("TEST_NINJA_GROQ_KEY", "test-key")
+	p := NewGroq("", "TEST_NINJA_GROQ_KEY")
+	p.BaseURL = srv.URL
+
+	sug, err := p.Translate(context.Background(), Request{System: "sys", User: "show files"})
+	if err != nil {
+		t.Fatalf("Translate: %v", err)
+	}
+	if sug.Command != "ls -la" {
+		t.Errorf("unexpected suggestion: %+v", sug)
+	}
+}
+
 func TestCompatAPIErrorShapes(t *testing.T) {
 	// OpenAI-style nested error
 	openaiErr := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -104,6 +121,7 @@ func TestCompatNoKey(t *testing.T) {
 	for _, p := range []*OpenAICompatProvider{
 		NewOpenAI("", "TEST_NINJA_COMPAT_EMPTY"),
 		NewMistral("", "TEST_NINJA_COMPAT_EMPTY"),
+		NewGroq("", "TEST_NINJA_COMPAT_EMPTY"),
 	} {
 		if _, err := p.Translate(context.Background(), Request{User: "x"}); err == nil {
 			t.Errorf("%s: expected an error when the API key env is empty", p.Brand)
@@ -119,5 +137,9 @@ func TestCompatDefaults(t *testing.T) {
 	m := NewMistral("", "")
 	if m.Model != "mistral-small-latest" || m.APIKeyEnv != "MISTRAL_API_KEY" || m.Name() != "mistral" {
 		t.Errorf("mistral defaults wrong: %+v", m)
+	}
+	g := NewGroq("", "")
+	if g.Model != "llama-3.1-8b-instant" || g.APIKeyEnv != "GROQ_API_KEY" || g.Name() != "groq" || g.BaseURL != "https://api.groq.com/openai" {
+		t.Errorf("groq defaults wrong: %+v", g)
 	}
 }

@@ -12,7 +12,7 @@ import (
 )
 
 // OpenAICompatProvider speaks the chat-completions protocol shared by
-// OpenAI, Mistral, and many self-hosted gateways: POST
+// OpenAI, Mistral, Groq, and many self-hosted gateways: POST
 // /v1/chat/completions with a Bearer key. One client, several brands.
 type OpenAICompatProvider struct {
 	Brand     string // "openai", "mistral", ...
@@ -50,6 +50,25 @@ func NewMistral(model, apiKeyEnv string) *OpenAICompatProvider {
 		Model:     model,
 		APIKeyEnv: apiKeyEnv,
 		BaseURL:   "https://api.mistral.ai",
+		Client:    &http.Client{Timeout: 30 * time.Second},
+	}
+}
+
+// Groq serves an OpenAI-compatible API under /openai/v1/..., so the
+// BaseURL carries the /openai prefix and the shared Translate code
+// appends /v1/chat/completions like every other compat target.
+func NewGroq(model, apiKeyEnv string) *OpenAICompatProvider {
+	if model == "" {
+		model = "llama-3.1-8b-instant"
+	}
+	if apiKeyEnv == "" {
+		apiKeyEnv = "GROQ_API_KEY"
+	}
+	return &OpenAICompatProvider{
+		Brand:     "groq",
+		Model:     model,
+		APIKeyEnv: apiKeyEnv,
+		BaseURL:   "https://api.groq.com/openai",
 		Client:    &http.Client{Timeout: 30 * time.Second},
 	}
 }

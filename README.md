@@ -34,7 +34,7 @@ $ █                                   ← prompt left empty on purpose
 
 - **Go 1.22+** to build (`brew install go` on macOS)
 - **macOS or Linux** with **zsh**, **bash ≥ 4**, or **fish** (macOS ships bash 3.2, use zsh, or `brew install bash`)
-- An API key for one of: Anthropic, Google Gemini, OpenAI, Mistral (or none there is an offline demo mode)
+- An API key for one of: Anthropic, Google Gemini, OpenAI, Mistral, Groq (or none there is an offline demo mode)
 
 ## Install
 
@@ -70,6 +70,7 @@ export ANTHROPIC_API_KEY=sk-ant-...     # Claude (the default provider)
 export GEMINI_API_KEY=...               # then set provider: gemini (see Configure)
 export OPENAI_API_KEY=sk-...            # then set provider: openai
 export MISTRAL_API_KEY=...              # then set provider: mistral
+export GROQ_API_KEY=gsk_...             # then set provider: groq
 ```
 
 **3. Load the shell hook** (add to your rc file)
@@ -127,6 +128,7 @@ ninja translate --provider stub -- "find big files"   # canned offline responses
 | `gemini`    | `gemini-2.5-flash`     | `GEMINI_API_KEY`    |
 | `openai`    | `gpt-5-mini`           | `OPENAI_API_KEY`    |
 | `mistral`   | `mistral-small-latest` | `MISTRAL_API_KEY`   |
+| `groq`      | `llama-3.1-8b-instant` | `GROQ_API_KEY`      |
 | `stub`      | offline, canned        | none                |
 
 Switching is one config line (`provider: gemini`) model and key-env follow
@@ -140,7 +142,7 @@ Optional. Copy [config.yaml](config.yaml) to `~/.config/cmd-ninja/config.yaml`
 (or point `$NINJA_CONFIG` at a file). Everything has a working default:
 
 ```yaml
-provider: anthropic               # anthropic | gemini | openai | mistral | stub
+provider: anthropic               # anthropic | gemini | openai | mistral | groq | stub
 #model: claude-haiku-4-5          # override the provider's default model
 #api_key_env: ANTHROPIC_API_KEY   # override which env var holds the key
 hotkey: ctrl-g                    # the widget key, e.g. ctrl-n

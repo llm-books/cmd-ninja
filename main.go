@@ -57,7 +57,7 @@ func newTranslateCmd() *cobra.Command {
 	}
 	cmd.Flags().BoolVar(&wireMode, "wire", false, "emit the machine-readable FILL/SHOW line on stdout (for shell widgets)")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "show the INFO/RISK block but never emit a fillable command")
-	cmd.Flags().StringVar(&providerName, "provider", "", "override the configured provider (anthropic|gemini|openai|mistral|stub)")
+	cmd.Flags().StringVar(&providerName, "provider", "", "override the configured provider (anthropic|gemini|openai|mistral|groq|stub)")
 	return cmd
 }
 
@@ -124,8 +124,11 @@ func pickProvider(name string, cfg config.Config) llm.Provider {
 	case "mistral":
 		p := llm.NewMistral(model, keyEnv)
 		return fallbackIfNoKey(p, p.APIKeyEnv)
+	case "groq":
+		p := llm.NewGroq(model, keyEnv)
+		return fallbackIfNoKey(p, p.APIKeyEnv)
 	default:
-		fmt.Fprintf(os.Stderr, "  (unknown provider %q, want anthropic|gemini|openai|mistral|stub — using the offline stub provider)\n", name)
+		fmt.Fprintf(os.Stderr, "  (unknown provider %q, want anthropic|gemini|openai|mistral|groq|stub — using the offline stub provider)\n", name)
 		return llm.StubProvider{}
 	}
 }
